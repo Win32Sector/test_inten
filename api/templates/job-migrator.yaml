@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "common.fullname" . }}-api-migrator
+  labels:
+    app.kubernetes.io/component: api-migrator
+    {{- include "common.labels" . | nindent 4 }}
+spec:
+  backoffLimit: {{ include "common.migrations.backoffLimit" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: api-migrator
+    spec:
+      imagePullSecrets:
+        - name: {{ include "common.ContainerRegisterSecret.Name" . }}
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      containers:
+      - name: {{ include "common.fullname" . }}-api-migrator
+        image: "{{ .Values.image.containerRegisterName }}/{{ .Values.image.migratorName }}:{{ .Values.image.tag }}"
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        args: 
+          - something migrate;
+        env:
+          - name: DATABASE_CONNECTION_STRING
+            value: "{{ .Values.database.connectionString }}"
+      restartPolicy: OnFailure

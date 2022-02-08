@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.fullname" . }}-api
+  labels:
+    app.kubernetes.io/component: "api"
+    {{- include "common.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: "api"
+      {{- include "common.selectorLabels" . | nindent 6 }}
+  {{- include "common.updateStrategy" . | nindent 2 }}
+  minReadySeconds: 10
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: "api"
+        {{- include "common.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if eq .Values.podTopologySpreadConstraints.enabled true }}
+      {{- include "common.podTopologySpreadConstraints" . | nindent 6 }}
+      {{- end }}
+      imagePullSecrets:
+        - name: {{ include "common.ContainerRegisterSecret.Name" . }}
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      volumes:
+      {{- include "common.k8s-wait-for-ready.volumes" . | nindent 6 }}
+      initContainers:
+      {{- include "common.k8s-wait-for-ready" (dict "serviceType" "job" "nameOrSelector" (printf "-lapp.kubernetes.io/component=%s" "api-migrator") "containerRegisterName" (.Values.image.containerRegisterName) )| nindent 6 }}
+      containers:
+        - name: {{ include "common.fullname" . }}-api
+          image: "{{ .Values.image.containerRegisterName }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Always
+          command: ["/bin/sh","-c"]
+          args:
+            - . something run;
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: DATABASE_CONNECTION_STRING
+              value: "{{ .Values.database.connectionString }}"
+          {{- include "common.probes" . | nindent 10 }}
+          resources:
+            {{ toYaml .Values.resources | nindent 12 }}

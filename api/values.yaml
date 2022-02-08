@@ -1,0 +1,30 @@
+database:
+  connectionString: null
+
+debugMode: true
+
+image:
+  tag: null
+  name: api
+  containerRegisterName: ourregistry.io
+  migratorName: alembic
+
+    
+ingress:
+  enabled: true
+  path: /api(/|$)(.*)
+
+podTopologySpreadConstraints:
+  enabled: false
+
+replicaCount: 1
+
+resources:
+  requests:
+    cpu:  100m
+    memory: 128Mi
+  limits:
+    cpu: 500m 
+    memory: 256Mi
+
+shortName: true
