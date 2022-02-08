@@ -6,8 +6,8 @@ Example chart with deployment, job-migrator, ingress.
 
 For example we can install this chart with command
 
-helm upgrade --install $releaseName-api $chartDir/api \
-  -f $chartDir/api/values.$mode.yaml \
+helm upgrade --install $releaseName-api intento_test/api \
+  -f intento_test/api/values.$mode.yaml \
   --set image.containerRegisterName=$containerRegisterName \
   --set image.containerRegisterSecret=$containerRegisterSecret \
   --set image.tag=$imageTag \
