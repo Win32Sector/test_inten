@@ -41,7 +41,7 @@ spec:
           imagePullPolicy: Always
           command: ["/bin/sh","-c"]
           args:
-            - . something run
+            - . something run;
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -54,8 +54,8 @@ spec:
           volumeMounts:
             - name: varlog
               mountPath: /var/log
-        - name: count-agent
-          image: k8s.gcr.io/fluentd-gcp:1.30
+        - name: {{ include "common.fullname" . }}-sidecar-agent
+          image: "{{ .Values.image.containerRegisterName }}/{{ .Values.sidecar.imageName }}:{{ .Values.sidecar.imageTag }}"
           env:
           - name: FLUENTD_ARGS
             value: -c /etc/fluentd-config/fluentd.conf

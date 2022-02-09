@@ -9,7 +9,10 @@ image:
   containerRegisterName: ourregistry.io
   migratorName: alembic
 
-    
+sidecar:
+  imageName: fluentd-gcp
+  imageTag: 1.30
+  
 ingress:
   enabled: true
   path: /api(/|$)(.*)
