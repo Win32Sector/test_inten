@@ -28,6 +28,11 @@ spec:
         beta.kubernetes.io/os: linux
       volumes:
       {{- include "common.k8s-wait-for-ready.volumes" . | nindent 6 }}
+      - name: varlog
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: {{ include "common.fullname" . }}-fluentd-config
       initContainers:
       {{- include "common.k8s-wait-for-ready" (dict "serviceType" "job" "nameOrSelector" (printf "-lapp.kubernetes.io/component=%s" "api-migrator") "containerRegisterName" (.Values.image.containerRegisterName) )| nindent 6 }}
       containers:
@@ -36,7 +41,7 @@ spec:
           imagePullPolicy: Always
           command: ["/bin/sh","-c"]
           args:
-            - . something run;
+            - . something run
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -46,3 +51,16 @@ spec:
           {{- include "common.probes" . | nindent 10 }}
           resources:
             {{ toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+        - name: count-agent
+          image: k8s.gcr.io/fluentd-gcp:1.30
+          env:
+          - name: FLUENTD_ARGS
+            value: -c /etc/fluentd-config/fluentd.conf
+          volumeMounts:
+          - name: varlog
+            mountPath: /var/log
+          - name: config-volume
+            mountPath: /etc/fluentd-config
