@@ -1,10 +1,10 @@
 ## ABOUT
 
-Example chart with deployment, job-migrator, ingress.
+Пример чарта с deployment, job-migrator, ingress.
 
 ## Installation
 
-For example we can install this chart with command
+Установить можно примерно так:
 
 ```
 helm upgrade --install $releaseName-api intento_test/api \
@@ -17,3 +17,8 @@ helm upgrade --install $releaseName-api intento_test/api \
   --timeout 15m0s --debug --logtostderr > $logfilePath-api \
   -n $Namespace
 ```
+## Немного подробностей и что бы я сделал лучше и по другому
+
+Я не совсем понял, почему нельзя выводить логи в stdout контейнера, а потом флюентом экранировать чувствительные данные и разделять индексы по какому-то ключевому слов.
+
+Некоторые переменные в values указаны как null специально. Так как я предполагаю, что версии и коннеккшнсстринги к базе задаются выше чарта, например, в CI, где мы определяем, на какой стенд деплоим чарт и, в зависимости от этого, подтягиваются эти переменные.
